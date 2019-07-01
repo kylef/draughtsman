@@ -16,8 +16,7 @@ instructions for further information. Using Homebrew on macOS, Drafter can be
 installed via:
 
 ```shell
-$ brew install --HEAD \
-  https://raw.github.com/apiaryio/drafter/master/tools/homebrew/drafter.rb
+$ brew install drafter
 ```
 
 ## Usage
