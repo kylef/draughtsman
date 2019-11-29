@@ -1,5 +1,5 @@
 from cffi import FFI
-from refract.json import LegacyJSONDeserialiser
+from refract.json import JSONDeserialiser
 from refract.contrib.apielements import registry, ParseResult
 
 
@@ -35,5 +35,5 @@ def parse(blueprint: str) -> ParseResult:
         raise Exception('Unknown Error')
 
     string = ffi.string(output[0]).decode('utf-8')
-    deserialiser = LegacyJSONDeserialiser(registry=registry)
+    deserialiser = JSONDeserialiser(registry=registry)
     return deserialiser.deserialise(string)

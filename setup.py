@@ -11,7 +11,7 @@ setup(
     author='Kyle Fuller',
     author_email='kyle@fuller.li',
     license='BSD',
-    install_requires=('cffi', 'refract==0.3.0'),
+    install_requires=('cffi', 'refract==0.4.0'),
     classifiers=(
       'Development Status :: 5 - Production/Stable',
       'Programming Language :: Python :: 3.5',
