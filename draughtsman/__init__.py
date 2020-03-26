@@ -44,7 +44,13 @@ def parse(blueprint: str) -> ParseResult:
     output = ffi.new('char **')
     parse_options = ffi.new("drafter_parse_options *", [False])
     serialize_options = ffi.new('drafter_serialize_options *', [False, 1])
-    result = drafter.drafter_parse_blueprint_to(source, output, parse_options[0], serialize_options[0])
+
+    result = drafter.drafter_parse_blueprint_to(
+        source,
+        output,
+        parse_options[0],
+        serialize_options[0]
+    )
 
     if result != 0:
         raise Exception('Unknown Error')
