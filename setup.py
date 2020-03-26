@@ -13,9 +13,11 @@ setup(
     license='BSD',
     install_requires=('cffi', 'refract==0.4.0', 'semantic_version'),
     classifiers=(
-      'Development Status :: 5 - Production/Stable',
-      'Programming Language :: Python :: 3.5',
-      'Programming Language :: Python :: 3.6',
-      'License :: OSI Approved :: BSD License',
+        'Development Status :: 5 - Production/Stable',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'License :: OSI Approved :: BSD License',
     )
 )
