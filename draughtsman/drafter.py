@@ -4,33 +4,6 @@ from semantic_version import Version
 
 ffi = FFI()
 ffi.cdef('''
-typedef enum {
-    DRAFTER_SERIALIZE_YAML = 0,
-    DRAFTER_SERIALIZE_JSON
-} drafter_format;
-
-typedef struct {
-    bool requireBlueprintName;
-} drafter_parse_options;
-
-typedef struct {
-    bool sourcemap;
-    drafter_format format;
-} drafter_serialize_options;
-
-typedef enum
-{
-    DRAFTER_OK = 0,
-    DRAFTER_EUNKNOWN = -1,
-    DRAFTER_EINVALID_INPUT = -2,
-    DRAFTER_EINVALID_OUTPUT = -3,
-} drafter_error;
-
-drafter_error drafter_parse_blueprint_to(const char* source,
-    char** out,
-    const drafter_parse_options parse_opts,
-    const drafter_serialize_options serialize_opts);
-
 const char* drafter_version_string(void);
 ''')
 
@@ -47,14 +20,7 @@ def get_drafter_version():
     return string.replace('v', '')
 
 
-drafter_version = Version(get_drafter_version())
-if drafter_version.major != 4:
-    raise ImportError(
-        'Unsupported version of drafter (found {}), '
-        'Draughtsman requires drafter >= 4.0.0,<5'.format(drafter_version))
-
-
-def drafter_parse_blueprint_to(blueprint: str) -> str:
+def drafter4_parse_blueprint_to(blueprint: str) -> str:
     source = ffi.new('char []', blueprint.encode('utf-8'))
     output = ffi.new('char **')
     parse_options = ffi.new("drafter_parse_options *", [False])
@@ -72,3 +38,93 @@ def drafter_parse_blueprint_to(blueprint: str) -> str:
 
     string = ffi.string(output[0]).decode('utf-8')
     return string
+
+
+def drafter5_parse_blueprint_to(blueprint: str) -> str:
+    source = ffi.new('char []', blueprint.encode('utf-8'))
+    output = ffi.new('char **')
+
+    serialize_options = drafter.drafter_init_serialize_options()
+    drafter.drafter_set_format(serialize_options, 1)
+
+    try:
+        result = drafter.drafter_parse_blueprint_to(
+            source,
+            output,
+            ffi.NULL,
+            serialize_options
+        )
+    finally:
+        drafter.drafter_free_serialize_options(serialize_options)
+
+    if result != 0:
+        raise Exception('Unknown Error')
+
+    string = ffi.string(output[0]).decode('utf-8')
+    return string
+
+
+drafter_version = Version(get_drafter_version())
+if drafter_version.major == 4:
+    ffi.cdef('''
+    typedef enum {
+        DRAFTER_SERIALIZE_YAML = 0,
+        DRAFTER_SERIALIZE_JSON
+    } drafter_format;
+
+    typedef struct {
+        bool requireBlueprintName;
+    } drafter_parse_options;
+
+    typedef struct {
+        bool sourcemap;
+        drafter_format format;
+    } drafter_serialize_options;
+
+    typedef enum
+    {
+        DRAFTER_OK = 0,
+        DRAFTER_EUNKNOWN = -1,
+        DRAFTER_EINVALID_INPUT = -2,
+        DRAFTER_EINVALID_OUTPUT = -3,
+    } drafter_error;
+
+    drafter_error drafter_parse_blueprint_to(const char* source,
+        char** out,
+        const drafter_parse_options parse_opts,
+        const drafter_serialize_options serialize_opts);
+    ''')
+
+    drafter_parse_blueprint_to = drafter4_parse_blueprint_to
+elif drafter_version.major == 5:
+    ffi.cdef('''
+    typedef enum
+    {
+        DRAFTER_OK = 0,
+        DRAFTER_EUNKNOWN = -1,
+        DRAFTER_EINVALID_INPUT = -2,
+        DRAFTER_EINVALID_OUTPUT = -3,
+    } drafter_error;
+
+    typedef struct drafter_parse_options drafter_parse_options;
+    typedef struct drafter_serialize_options drafter_serialize_options;
+
+    drafter_serialize_options* drafter_init_serialize_options();
+    typedef enum {
+        DRAFTER_SERIALIZE_YAML = 0,
+        DRAFTER_SERIALIZE_JSON
+    } drafter_format;
+    void drafter_set_format(drafter_serialize_options*, drafter_format);
+    void drafter_free_serialize_options(drafter_serialize_options*);
+
+    drafter_error drafter_parse_blueprint_to(const char* source,
+        char** out,
+        const drafter_parse_options* parse_opts,
+        const drafter_serialize_options* serialize_opts);
+    ''')
+
+    drafter_parse_blueprint_to = drafter5_parse_blueprint_to
+else:
+    raise ImportError(
+        'Unsupported version of drafter (found {}), '
+        'Draughtsman requires drafter >= 4.0.0,<5'.format(drafter_version))
