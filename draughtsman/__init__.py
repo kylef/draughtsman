@@ -1,3 +1,4 @@
+from ctypes.util import find_library
 from cffi import FFI
 from refract.json import JSONDeserialiser
 from refract.contrib.apielements import registry, ParseResult
@@ -35,8 +36,7 @@ drafter_error drafter_parse_blueprint_to(const char* source,
     const drafter_parse_options parse_opts,
     const drafter_serialize_options serialize_opts);
 ''')
-
-drafter = ffi.dlopen('drafter')
+drafter = ffi.dlopen(find_library('drafter'))
 
 
 def parse(blueprint: str) -> ParseResult:
