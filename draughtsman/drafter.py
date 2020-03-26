@@ -20,10 +20,11 @@ def get_drafter_version():
     return string.replace('v', '')
 
 
-def drafter4_parse_blueprint_to(blueprint: str) -> str:
+def drafter4_parse_blueprint_to(blueprint: str,
+                                generate_source_map: bool = False) -> str:
     source = ffi.new('char []', blueprint.encode('utf-8'))
     output = ffi.new('char **')
-    parse_options = ffi.new("drafter_parse_options *", [False])
+    parse_options = ffi.new("drafter_parse_options *", [generate_source_map])
     serialize_options = ffi.new('drafter_serialize_options *', [False, 1])
 
     result = drafter.drafter_parse_blueprint_to(
@@ -40,12 +41,16 @@ def drafter4_parse_blueprint_to(blueprint: str) -> str:
     return string
 
 
-def drafter5_parse_blueprint_to(blueprint: str) -> str:
+def drafter5_parse_blueprint_to(blueprint: str,
+                                generate_source_map: bool = False) -> str:
     source = ffi.new('char []', blueprint.encode('utf-8'))
     output = ffi.new('char **')
 
     serialize_options = drafter.drafter_init_serialize_options()
     drafter.drafter_set_format(serialize_options, 1)
+
+    if generate_source_map:
+        drafter.drafter_set_sourcemaps_included(serialize_options)
 
     try:
         result = drafter.drafter_parse_blueprint_to(
@@ -115,6 +120,7 @@ elif drafter_version.major == 5:
         DRAFTER_SERIALIZE_JSON
     } drafter_format;
     void drafter_set_format(drafter_serialize_options*, drafter_format);
+    void drafter_set_sourcemaps_included(drafter_serialize_options*);
     void drafter_free_serialize_options(drafter_serialize_options*);
 
     drafter_error drafter_parse_blueprint_to(const char* source,
