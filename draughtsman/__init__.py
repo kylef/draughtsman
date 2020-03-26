@@ -4,7 +4,7 @@ from refract.json import JSONDeserialiser
 from refract.contrib.apielements import registry, ParseResult
 
 
-_all_ = ('parse',)
+__all__ = ('parse',)
 
 
 ffi = FFI()
