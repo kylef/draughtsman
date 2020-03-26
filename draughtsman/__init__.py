@@ -1,5 +1,6 @@
 from ctypes.util import find_library
 from cffi import FFI
+from semantic_version import Version
 from refract.json import JSONDeserialiser
 from refract.contrib.apielements import registry, ParseResult
 
@@ -35,8 +36,28 @@ drafter_error drafter_parse_blueprint_to(const char* source,
     char** out,
     const drafter_parse_options parse_opts,
     const drafter_serialize_options serialize_opts);
+
+const char* drafter_version_string(void);
 ''')
-drafter = ffi.dlopen(find_library('drafter'))
+
+drafter_library = find_library('drafter')
+if not drafter_library:
+    raise ImportError('Draughtsman require drafter to be installed')
+
+drafter = ffi.dlopen(drafter_library)
+
+
+def get_drafter_version():
+    output = drafter.drafter_version_string()
+    string = ffi.string(output).decode('utf-8')
+    return string.replace('v', '')
+
+
+drafter_version = Version(get_drafter_version())
+if drafter_version.major != 4:
+    raise ImportError(
+        'Unsupported version of drafter (found {}), '
+        'Draughtsman requires drafter >= 4.0.0,<5'.format(drafter_version))
 
 
 def parse(blueprint: str) -> ParseResult:
