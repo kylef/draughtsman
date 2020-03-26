@@ -5,8 +5,6 @@ jobs:
     strategy:
       matrix:
         drafter: [4.1.0]
-    env:
-      LD_LIBRARY_PATH: $GITHUB_WORKSPACE/lib
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
@@ -19,7 +17,7 @@ jobs:
         uses: actions/cache@v1
         id: cache-drafter
         with:
-          path: $LD_LIBRARY_PATH
+          path: lib
           key: ${{ runner.os }}-drafter-${{ matrix.drafter }}
       - name: Install Drafter ${{ matrix.drafter }}
         if: steps.cache-drafter.outputs.cache-hit != 'true'
@@ -31,9 +29,9 @@ jobs:
           cd drafter-${{ matrix.drafter }}/build
           cmake ..
           make -j4 drafter-so
-          cp ./src/libdrafter.so $LD_LIBRARY_PATH
-      - run: ls -al $LD_LIBRARY_PATH
-      - run: pytest
+          cp ./src/libdrafter.so ../../lib
+      - run: ls -al $(pwd)/lib
+      - run: env $LD_LIBRARY_PATH=$(pwd)/lib pytest
 
   lint:
     runs-on: ubuntu-latest
