@@ -3,79 +3,14 @@ from cffi import FFI
 from semantic_version import Version
 from refract.json import JSONDeserialiser
 from refract.contrib.apielements import registry, ParseResult
+from draughtsman.drafter import drafter_parse_blueprint_to
 
 
 __all__ = ('parse',)
 
 
-ffi = FFI()
-ffi.cdef('''
-typedef enum {
-    DRAFTER_SERIALIZE_YAML = 0,
-    DRAFTER_SERIALIZE_JSON
-} drafter_format;
-
-typedef struct {
-    bool requireBlueprintName;
-} drafter_parse_options;
-
-typedef struct {
-    bool sourcemap;
-    drafter_format format;
-} drafter_serialize_options;
-
-typedef enum
-{
-    DRAFTER_OK = 0,
-    DRAFTER_EUNKNOWN = -1,
-    DRAFTER_EINVALID_INPUT = -2,
-    DRAFTER_EINVALID_OUTPUT = -3,
-} drafter_error;
-
-drafter_error drafter_parse_blueprint_to(const char* source,
-    char** out,
-    const drafter_parse_options parse_opts,
-    const drafter_serialize_options serialize_opts);
-
-const char* drafter_version_string(void);
-''')
-
-drafter_library = find_library('drafter')
-if not drafter_library:
-    raise ImportError('Draughtsman require drafter to be installed')
-
-drafter = ffi.dlopen(drafter_library)
-
-
-def get_drafter_version():
-    output = drafter.drafter_version_string()
-    string = ffi.string(output).decode('utf-8')
-    return string.replace('v', '')
-
-
-drafter_version = Version(get_drafter_version())
-if drafter_version.major != 4:
-    raise ImportError(
-        'Unsupported version of drafter (found {}), '
-        'Draughtsman requires drafter >= 4.0.0,<5'.format(drafter_version))
-
-
 def parse(blueprint: str) -> ParseResult:
-    source = ffi.new('char []', blueprint.encode('utf-8'))
-    output = ffi.new('char **')
-    parse_options = ffi.new("drafter_parse_options *", [False])
-    serialize_options = ffi.new('drafter_serialize_options *', [False, 1])
+    result = drafter_parse_blueprint_to(blueprint)
 
-    result = drafter.drafter_parse_blueprint_to(
-        source,
-        output,
-        parse_options[0],
-        serialize_options[0]
-    )
-
-    if result != 0:
-        raise Exception('Unknown Error')
-
-    string = ffi.string(output[0]).decode('utf-8')
     deserialiser = JSONDeserialiser(registry=registry)
-    return deserialiser.deserialise(string)
+    return deserialiser.deserialise(result)
