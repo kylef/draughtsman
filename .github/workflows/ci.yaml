@@ -28,7 +28,7 @@ jobs:
           mkdir drafter-${{ matrix.drafter }}/build
           cd drafter-${{ matrix.drafter }}/build
           cmake ..
-          make -j4 drafter-lib
+          make -j4 drafter-so
           cp ./src/libdrafter.so ../../lib
 
   lint:
