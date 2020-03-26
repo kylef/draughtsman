@@ -30,7 +30,6 @@ jobs:
           cmake ..
           make -j4 drafter-lib
           cp ./src/libdrafter.so ../../lib
-      - run: pytest
 
   lint:
     runs-on: ubuntu-latest
