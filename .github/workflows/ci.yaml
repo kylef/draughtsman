@@ -2,6 +2,9 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        drafter: [4.1.0]
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
@@ -15,15 +18,15 @@ jobs:
         id: cache-drafter
         with:
           path: lib
-          key: ${{ runner.os }}-drafter-4.1.0
-      - name: Install Drafter
+          key: ${{ runner.os }}-drafter-${{ matrix.drafter }}
+      - name: Install Drafter ${{ matrix.drafter }}
         if: steps.cache-drafter.outputs.cache-hit != 'true'
         run: |
           mkdir lib
-          wget https://github.com/apiaryio/drafter/releases/download/v4.1.0/drafter-4.1.0.tar.gz
-          tar xvf drafter-4.1.0.tar.gz
-          mkdir drafter-4.1.0/build
-          cd drafter-4.1.0/build
+          wget https://github.com/apiaryio/drafter/releases/download/v${{ matrix.drafter }}/drafter-${{ matrix.drafter }}.tar.gz
+          tar xvf drafter-${{ matrix.drafter }.tar.gz
+          mkdir drafter-${{ matrix.drafter }}/build
+          cd drafter-${{ matrix.drafter }}/build
           cmake ..
           make -j4 drafter-lib
           cp ./src/libdrafter.so ../../lib
