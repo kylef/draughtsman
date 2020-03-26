@@ -1,0 +1,47 @@
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        drafter: [4.1.0]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+      - uses: actions/checkout@v1
+      - run: |
+          pip install -e .
+          pip install pytest
+      - name: Cache Drafter
+        uses: actions/cache@v1
+        id: cache-drafter
+        with:
+          path: lib
+          key: ${{ runner.os }}-drafter-${{ matrix.drafter }}
+      - name: Install Drafter ${{ matrix.drafter }}
+        if: steps.cache-drafter.outputs.cache-hit != 'true'
+        run: |
+          mkdir lib
+          wget https://github.com/apiaryio/drafter/releases/download/v${{ matrix.drafter }}/drafter-${{ matrix.drafter }}.tar.gz
+          tar xvf drafter-${{ matrix.drafter }}.tar.gz
+          mkdir drafter-${{ matrix.drafter }}/build
+          cd drafter-${{ matrix.drafter }}/build
+          cmake ..
+          make -j4 drafter-so
+          cp ./src/libdrafter.so ../../lib
+      - name: Test Draughtsman
+        run: env LD_LIBRARY_PATH=$(pwd)/lib pytest
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+      - run: |
+          pip install -e .
+          pip install flake8
+      - run: flake8 draughtsman tests
