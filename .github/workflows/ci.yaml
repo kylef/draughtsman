@@ -24,7 +24,7 @@ jobs:
         run: |
           mkdir lib
           wget https://github.com/apiaryio/drafter/releases/download/v${{ matrix.drafter }}/drafter-${{ matrix.drafter }}.tar.gz
-          tar xvf drafter-${{ matrix.drafter }.tar.gz
+          tar xvf drafter-${{ matrix.drafter }}.tar.gz
           mkdir drafter-${{ matrix.drafter }}/build
           cd drafter-${{ matrix.drafter }}/build
           cmake ..
