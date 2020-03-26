@@ -1,0 +1,34 @@
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+      - uses: actions/checkout@v1
+      - run: pip install -e .
+      - run: pip install pytest
+      - name: Install Drafter
+        run: |
+          wget https://github.com/apiaryio/drafter/releases/download/v4.1.0/drafter-4.1.0.tar.gz
+          tar xvf drafter-4.1.0.tar.gz
+          cd drafter-4.1.0
+          mkdir build
+          cd build
+          cmake ..
+          make -j2
+          sudo make install
+      - pytest
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+      - run: pip install -e .
+      - run: pip install flake8
+      - run: flake8 draughtsman tests
