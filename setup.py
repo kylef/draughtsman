@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='draughtsman',
-    version='0.1.0',
+    version='0.2.0',
     description='API Blueprint Parser for Python',
     url='https://github.com/kylef/draughtsman',
     packages=['draughtsman'],
