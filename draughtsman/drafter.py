@@ -24,8 +24,11 @@ def drafter4_parse_blueprint_to(blueprint: str,
                                 generate_source_map: bool = False) -> str:
     source = ffi.new('char []', blueprint.encode('utf-8'))
     output = ffi.new('char **')
-    parse_options = ffi.new("drafter_parse_options *", [generate_source_map])
-    serialize_options = ffi.new('drafter_serialize_options *', [False, 1])
+    parse_options = ffi.new('drafter_parse_options *', [False])
+    serialize_options = ffi.new(
+        'drafter_serialize_options *',
+        [generate_source_map, 1]
+    )
 
     result = drafter.drafter_parse_blueprint_to(
         source,
