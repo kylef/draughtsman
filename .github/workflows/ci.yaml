@@ -31,7 +31,7 @@ jobs:
           make -j4 drafter-so
           cp ./src/libdrafter.so ../../lib
       - run: ls -al $(pwd)/lib
-      - run: env $LD_LIBRARY_PATH=$(pwd)/lib pytest
+      - run: env LD_LIBRARY_PATH=$(pwd)/lib pytest
 
   lint:
     runs-on: ubuntu-latest
