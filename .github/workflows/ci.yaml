@@ -19,7 +19,7 @@ jobs:
         uses: actions/cache@v1
         id: cache-drafter
         with:
-          path: lib
+          path: $LD_LIBRARY_PATH
           key: ${{ runner.os }}-drafter-${{ matrix.drafter }}
       - name: Install Drafter ${{ matrix.drafter }}
         if: steps.cache-drafter.outputs.cache-hit != 'true'
@@ -31,7 +31,8 @@ jobs:
           cd drafter-${{ matrix.drafter }}/build
           cmake ..
           make -j4 drafter-so
-          cp ./src/libdrafter.so ../../lib
+          cp ./src/libdrafter.so $LD_LIBRARY_PATH
+      - run: ls -al $LD_LIBRARY_PATH
       - run: pytest
 
   lint:
