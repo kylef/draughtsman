@@ -20,7 +20,7 @@ jobs:
           cmake ..
           make -j2
           sudo make install
-      - pytest
+      - run: pytest
 
   lint:
     runs-on: ubuntu-latest
